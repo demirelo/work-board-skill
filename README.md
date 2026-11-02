@@ -67,3 +67,7 @@ answer on the card so the board stays complete.
 - `assets/board.html` — the page template.
 - `evals/` — test cases (`claude plugin eval .` runs them).
 - `docs/` — README pictures.
+
+## License
+
+MIT. See [LICENSE](LICENSE).
