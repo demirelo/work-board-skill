@@ -1,0 +1,16 @@
+{
+  "boardUrl": "https://claude.ai/artifact/EXAMPLEboard123",
+  "needs": [],
+  "jobs": [
+    {
+      "id": "pr-412-auth",
+      "version": 3,
+      "title": "Auth refactor (PR #412)",
+      "stage": "review",
+      "waitingOn": "Dana's approval",
+      "nextAction": "Merge when approved",
+      "updatedAt": "2026-11-01T16:00:00Z",
+      "link": "https://github.com/acme/app/pull/412"
+    }
+  ]
+}

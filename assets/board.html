@@ -1,0 +1,335 @@
+<title>Work Board</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* Generic work board. Title, subtitle and owner name come from meta/board.
+   One column. "Needs you" first, then jobs grouped by whom they wait for.
+   Done and backlog start collapsed so the open work stays on screen. */
+:root{
+  --bg:#f5f6f4; --panel:#ffffff; --fg:#1c2421; --muted:#606d67; --line:#dbe1dd;
+  --accent:#20675a; --you:#b0471b; --you-soft:#fbece4; --block:#a3261d; --block-soft:#fbe8e6; --run:#2a5d8a; --run-soft:#e6eef6;
+  --stale:#8a6a10; --stale-soft:#f7efd6;
+  --body:"IBM Plex Sans",system-ui,sans-serif; --mono:"IBM Plex Mono",ui-monospace,Menlo,monospace;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --bg:#121614; --panel:#1a201d; --fg:#e3eae6; --muted:#9aa7a0; --line:#2b3430;
+  --accent:#62c0a7; --you:#f0935f; --you-soft:#3a2418; --block:#ff8a80; --block-soft:#3a1e1b; --run:#83b5e5; --run-soft:#1b2a39;
+  --stale:#e3c46a; --stale-soft:#33290f; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#121614; --panel:#1a201d; --fg:#e3eae6; --muted:#9aa7a0; --line:#2b3430;
+  --accent:#62c0a7; --you:#f0935f; --you-soft:#3a2418; --block:#ff8a80; --block-soft:#3a1e1b; --run:#83b5e5; --run-soft:#1b2a39;
+  --stale:#e3c46a; --stale-soft:#33290f; color-scheme:dark}
+body{background:var(--bg);color:var(--fg);font:15px/1.55 var(--body);padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:0 56px}
+.wrap{max-width:860px;margin:0 auto;display:grid;gap:24px}
+h1{font:600 26px/1.2 var(--body);margin:0;text-wrap:balance}
+h2{font:600 14px/1.2 var(--mono);text-transform:uppercase;letter-spacing:.07em;margin:0;color:var(--muted)}
+p{margin:0}
+.muted{color:var(--muted)}
+header{display:grid;gap:6px;padding-top:24px}
+.stamp{font:13px/1.4 var(--mono);color:var(--muted)}
+.beat{font:13px/1.4 var(--mono)}
+.beat.ok{color:var(--accent)} .beat.late{color:var(--block)}
+nav{position:sticky;top:0;z-index:2;background:var(--bg);border-bottom:1px solid var(--line);padding:8px 0;margin:0 -4px}
+nav .links{max-width:860px;margin:0 auto;display:flex;gap:6px;overflow-x:auto;scrollbar-width:none;padding:0 4px}
+nav .links::-webkit-scrollbar{display:none}
+nav a{font:500 13px/1 var(--mono);text-decoration:none;color:var(--fg);border:1px solid var(--line);border-radius:99px;padding:6px 10px;white-space:nowrap;background:var(--panel)}
+nav a .n{color:var(--muted);margin-left:4px}
+nav a.hot{border-color:var(--you);color:var(--you)} nav a.hot .n{color:var(--you)}
+nav a.bad{border-color:var(--block);color:var(--block)} nav a.bad .n{color:var(--block)}
+section{display:grid;gap:10px;scroll-margin-top:56px}
+.list{display:grid;gap:8px}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:8px;padding:12px 14px;display:grid;gap:6px;min-width:0}
+.card.you{border-left:4px solid var(--you)}
+.card.block{border-left:4px solid var(--block)}
+.card.waiting{border-left:4px solid var(--accent)}
+.row{display:flex;flex-wrap:wrap;align-items:baseline;gap:6px 10px}
+.title{font-weight:600;overflow-wrap:anywhere}
+.chip{font:500 11px/1 var(--mono);text-transform:uppercase;letter-spacing:.05em;padding:4px 8px;border-radius:99px;border:1px solid var(--line);color:var(--muted);white-space:nowrap}
+.chip.you{color:var(--you);border-color:var(--you);background:var(--you-soft)}
+.chip.block{color:var(--block);border-color:var(--block);background:var(--block-soft)}
+.chip.run{color:var(--run);border-color:var(--run);background:var(--run-soft)}
+.chip.stale{color:var(--stale);border-color:var(--stale);background:var(--stale-soft)}
+.chip.now{color:#fff;background:var(--you);border-color:var(--you)}
+.opts{display:grid;gap:6px}
+.opt{font-size:14px;border:1px solid var(--line);border-radius:6px;padding:6px 10px}
+.opt.rec{border-color:var(--accent);color:var(--accent)}
+.opt small{display:block;color:var(--muted);font-size:13px}
+button.opt{font:inherit;font-size:14px;text-align:left;cursor:pointer;background:var(--panel);color:var(--fg)}
+button.opt:hover,button.opt:focus-visible{border-color:var(--accent);outline:none}
+button.opt.rec{border-color:var(--accent)}
+button.opt.rec .lbl{color:var(--accent)}
+button.opt.other{border-style:dashed;color:var(--muted)}
+.meta{font:12px/1.4 var(--mono);color:var(--muted);overflow-wrap:anywhere}
+a{color:var(--accent)}
+.empty{color:var(--muted);font-size:14px;padding:4px 0}
+.note{font-size:13px;color:var(--muted)}
+details.why summary{cursor:pointer;color:var(--muted);font-size:13px}
+details.why p{margin-top:4px}
+.blocks{font-size:13px;color:var(--you)}
+.confirm{display:grid;gap:8px;border:1px dashed var(--accent);border-radius:8px;padding:10px}
+.confirm textarea{font:inherit;font-size:14px;min-height:56px;border:1px solid var(--line);border-radius:6px;padding:6px;background:var(--bg);color:var(--fg);resize:vertical}
+.btnrow{display:flex;flex-wrap:wrap;gap:8px}
+.btn{font:600 14px/1 var(--body);padding:8px 12px;border-radius:6px;border:1px solid var(--accent);background:var(--accent);color:#fff;cursor:pointer}
+.btn.ghost{background:transparent;color:var(--fg);border-color:var(--line)}
+.btn[disabled]{opacity:.6;cursor:wait}
+.err{color:var(--block);font-size:13px}
+details.fold>summary{list-style:none;cursor:pointer;display:flex;align-items:center;gap:8px}
+details.fold>summary::-webkit-details-marker{display:none}
+details.fold>summary::before{content:"▸";color:var(--muted);font-size:12px;transition:transform .15s}
+details.fold[open]>summary::before{transform:rotate(90deg)}
+details.fold>.list{margin-top:10px}
+.outcome{font-size:14px}
+</style>
+
+<div class="wrap">
+  <header>
+    <h1 id="title">Work board</h1>
+    <p class="muted" id="subtitle">What needs you, then every job and whom it waits for. Updated by Claude.</p>
+    <span class="stamp" id="stamp">Loading…</span>
+    <span class="beat" id="beat"></span>
+  </header>
+</div>
+<nav aria-label="Sections"><div class="links" id="nav"></div></nav>
+<div class="wrap" style="margin-top:20px">
+  <section id="s-you" aria-labelledby="h-you">
+    <h2 id="h-you">Needs you</h2>
+    <div class="list" id="you"><p class="empty">Loading…</p></div>
+  </section>
+
+  <section hidden id="s-ans" aria-labelledby="h-ans">
+    <h2 id="h-ans">Answered, waiting for Claude</h2>
+    <div class="list" id="answered"></div>
+  </section>
+
+  <section hidden id="s-block" aria-labelledby="h-block">
+    <h2 id="h-block">Blocked</h2>
+    <div class="list" id="blocked"></div>
+  </section>
+
+  <section hidden id="s-run" aria-labelledby="h-run">
+    <h2 id="h-run">Working</h2>
+    <div class="list" id="working"></div>
+  </section>
+
+  <section hidden id="s-wait" aria-labelledby="h-wait">
+    <h2 id="h-wait">Waiting for others</h2>
+    <div class="list" id="waiting"></div>
+  </section>
+
+  <section hidden id="s-dec">
+    <details class="fold" id="f-dec"><summary><h2>Recent decisions</h2><span class="stamp" id="c-dec"></span></summary>
+      <div class="list" id="decisions"></div></details>
+  </section>
+
+  <section hidden id="s-done">
+    <details class="fold" id="f-done"><summary><h2>Recently done</h2><span class="stamp" id="c-done"></span></summary>
+      <div class="list" id="done"></div></details>
+  </section>
+
+  <section hidden id="s-back">
+    <details class="fold" id="f-back"><summary><h2>Backlog</h2><span class="stamp" id="c-back"></span></summary>
+      <div class="list" id="backlog"></div></details>
+  </section>
+
+  <p class="note">Each job shows whom it waits for. A job not updated for 12 hours is marked stale. Counts always equal the rows listed.</p>
+</div>
+
+<script>
+(function(){
+  const $=id=>document.getElementById(id);
+  const el=(tag,cls,text)=>{const e=document.createElement(tag);if(cls)e.className=cls;if(text!=null)e.textContent=text;return e};
+  const STAGE={
+    'needs-answer':{group:'you',label:'Your answer',cls:'you'},
+    'needs-review':{group:'you',label:'Your review',cls:'you'},
+    'needs-merge':{group:'you',label:'Your merge OK',cls:'you'},
+    'blocked':{group:'blocked',label:'Blocked',cls:'block'},
+    'failed':{group:'blocked',label:'Failed',cls:'block'},
+    'working':{group:'working',label:'Working',cls:'run'},
+    'ci':{group:'working',label:'CI running',cls:'run'},
+    'review':{group:'waiting',label:'In review',cls:''},
+    'pr':{group:'waiting',label:'PR open',cls:''},
+    'queued':{group:'waiting',label:'Queued',cls:''},
+    'waiting-others':{group:'waiting',label:'Waiting for others',cls:''},
+    'backlog':{group:'backlog',label:'Backlog',cls:''},
+    'done':{group:'done',label:'Done',cls:''}
+  };
+  const PRI={now:0,today:1,later:2};
+  const STALE_MS=12*3600e3, BEAT_LATE_MS=45*60e3;
+  // Older records carry text dates such as "1 Nov 22:10"; read them as this year.
+  function when(v){
+    if(!v)return null;
+    let t=Date.parse(v);
+    if(isNaN(t))t=Date.parse(v+' '+new Date().getFullYear());
+    return isNaN(t)?null:t;
+  }
+  function ago(t){
+    const m=Math.round((Date.now()-t)/60e3);
+    if(m<1)return 'just now';if(m<60)return m+' min ago';
+    const h=Math.round(m/60);if(h<48)return h+' h ago';
+    return Math.round(h/24)+' d ago';
+  }
+  function link(url,text){const a=el('a',null,text);a.href=url;a.target='_blank';a.rel='noopener';return a}
+  function optLabel(o){return typeof o==='string'?o:(o&&o.label)||''}
+  function optDetail(o){return o&&typeof o==='object'?o.detail||'':''}
+
+  function jobCard(j){
+    const s=STAGE[j.stage]||{group:'waiting',label:j.stage||'Unknown',cls:''};
+    const c=el('div','card'+(s.cls==='you'?' you':s.cls==='block'?' block':''));
+    const r=el('div','row');r.append(el('span','chip '+s.cls,s.label));
+    const t=when(j.updatedAt);
+    if(s.group!=='done'&&s.group!=='backlog'&&t&&Date.now()-t>STALE_MS)r.append(el('span','chip stale','Stale'));
+    r.append(el('span','title',j.title||j.id));c.append(r);
+    if(j.waitingOn)c.append(el('p','muted','Waits for: '+j.waitingOn));
+    if(j.nextAction)c.append(el('p',null,j.nextAction));
+    const m=el('div','meta');const parts=[];
+    if(j.machine)parts.push(j.machine);
+    if(j.updatedAt)parts.push('updated '+(t?ago(t):j.updatedAt));
+    m.textContent=parts.join(' · ');
+    if(j.link){if(parts.length)m.append(' · ');m.append(link(j.link,'open'))}
+    if(parts.length||j.link)c.append(m);
+    return c;
+  }
+
+  let db=null, canAnswer=false;
+  // One pending confirmation at a time; it survives re-render so a snapshot does not wipe it.
+  let pending=null; // {id, option, other, note, busy, error}
+  function answer(n){
+    if(!db||!pending||pending.busy)return;
+    const choice=pending.other?pending.note.trim():pending.option;
+    if(!choice){pending.error='Write your answer first.';render();return}
+    pending.busy=true;pending.error='';render();
+    const data={status:'answered',answer:choice.slice(0,2000),answeredAt:new Date().toISOString(),answeredVia:'board',pickedUp:false};
+    if(!pending.other&&pending.note&&pending.note.trim())data.note=pending.note.trim().slice(0,2000);
+    db.collection('needs').doc(n.id).update(data)
+      .then(()=>{pending=null;render()})
+      .catch(e=>{if(pending){pending.busy=false;pending.error=(e&&e.code==='invalid_argument')?'This view cannot save answers.':'Could not save ('+(e&&e.code||'error')+'). Try again.'}render()});
+  }
+  function needCard(n){
+    const c=el('div','card you');
+    const r=el('div','row');
+    if(n.priority==='now')r.append(el('span','chip now','Now'));
+    else r.append(el('span','chip you','Decision'));
+    r.append(el('span','title',n.question||n.id));c.append(r);
+    if(n.blocks)c.append(el('p','blocks','Blocks: '+n.blocks));
+    if(n.context){const d=el('details','why');d.append(el('summary',null,'Why'),el('p','muted',n.context));c.append(d)}
+    const opts=Array.isArray(n.options)?n.options:[];
+    const o=el('div','opts');
+    opts.forEach((x,i)=>{
+      const rec=i===0&&n.recommendFirst, label=optLabel(x), detail=optDetail(x);
+      const b=el(canAnswer?'button':'div','opt'+(rec?' rec':''));
+      b.append(el('span','lbl',(rec?'Recommended: ':'')+label));
+      if(detail)b.append(el('small',null,detail));
+      if(canAnswer){b.type='button';b.onclick=()=>{pending={id:n.id,option:label,other:false,note:'',busy:false,error:''};render()}}
+      o.append(b);
+    });
+    if(canAnswer){
+      const b=el('button','opt other','Other answer…');b.type='button';
+      b.onclick=()=>{pending={id:n.id,option:'',other:true,note:'',busy:false,error:''};render()};
+      o.append(b);
+    }
+    if(opts.length||canAnswer)c.append(o);
+    if(canAnswer&&pending&&pending.id===n.id){
+      const box=el('div','confirm');
+      box.append(el('p',null,pending.other?'Write your answer for Claude:':'Confirm your choice: '+pending.option));
+      const ta=document.createElement('textarea');ta.placeholder=pending.other?'Your answer':'Optional note for Claude';ta.value=pending.note;ta.oninput=()=>{pending.note=ta.value};
+      box.append(ta);
+      const row=el('div','btnrow');
+      const ok=el('button','btn',pending.busy?'Saving…':'Confirm');ok.type='button';ok.disabled=pending.busy;ok.onclick=()=>answer(n);
+      const no=el('button','btn ghost','Cancel');no.type='button';no.disabled=pending.busy;no.onclick=()=>{pending=null;render()};
+      row.append(ok,no);box.append(row);
+      if(pending.error)box.append(el('p','err',pending.error));
+      c.append(box);
+      if(pending.other)setTimeout(()=>ta.focus(),0);
+    }
+    const m=el('div','meta');const t=when(n.askedAt);
+    if(n.askedAt)m.textContent='asked '+(t?ago(t):n.askedAt);
+    if(n.link){if(n.askedAt)m.append(' · ');m.append(n.link.startsWith('http')?link(n.link,'details'):document.createTextNode(n.link))}
+    if(n.askedAt||n.link)c.append(m);
+    return c;
+  }
+  function answeredCard(n){
+    const c=el('div','card waiting');
+    const r=el('div','row');r.append(el('span','chip','Answered'),el('span','title',n.question||n.id));c.append(r);
+    c.append(el('p',null,'Your choice: '+(n.answer||'')));
+    if(n.note)c.append(el('p','muted','Note: '+n.note));
+    const t=when(n.answeredAt);
+    c.append(el('div','meta','answered '+(t?ago(t):'')+' · Claude picks this up at the next check'));
+    return c;
+  }
+  function decisionCard(n){
+    const c=el('div','card');
+    const r=el('div','row');r.append(el('span','chip',n.answeredVia==='chat'?'Chat':'Board'),el('span','title',n.question||n.id));c.append(r);
+    c.append(el('p',null,'Choice: '+(n.answer||'')));
+    if(n.outcome)c.append(el('p','outcome muted','Claude: '+n.outcome));
+    const t=when(n.pickedUpAt||n.answeredAt);
+    if(t)c.append(el('div','meta',ago(t)));
+    return c;
+  }
+  function fill(id,items,empty){const box=$(id);box.replaceChildren();if(!items.length){if(empty)box.append(el('p','empty',empty));return}items.forEach(x=>box.append(x))}
+
+  const NAV=[['s-you','Needs you'],['s-ans','Answered'],['s-block','Blocked'],['s-run','Working'],['s-wait','Waiting'],['s-dec','Decisions'],['s-done','Done'],['s-back','Backlog']];
+  function nav(counts){
+    const box=$('nav');box.replaceChildren();
+    NAV.forEach(([id,label])=>{
+      const show=id==='s-you'||(counts[id]||0)>0;
+      $(id).hidden=!show;
+      if(!show)return;
+      const a=el('a',(id==='s-you'&&counts[id])?'hot':(id==='s-block'&&counts[id])?'bad':'');a.href='#'+id;
+      a.append(label);a.append(el('span','n',String(counts[id]||0)));
+      // Opening a folded section from the nav: unfold it first, then scroll.
+      a.onclick=e=>{const f=$(id).querySelector('details.fold');if(f)f.open=true;e.preventDefault();$(id).scrollIntoView({behavior:'smooth',block:'start'})};
+      box.append(a);
+    });
+  }
+
+  let needs=[],jobs=[],meta=null,got={needs:false,jobs:false};
+  function beat(){
+    const b=$('beat');
+    if(!meta||!meta.checkedAt){b.textContent='';return}
+    const t=when(meta.checkedAt);if(!t){b.textContent='';return}
+    const late=Date.now()-t>BEAT_LATE_MS;
+    b.className='beat '+(late?'late':'ok');
+    b.textContent='Claude checked the board '+ago(t)+(late?' (late)':'')+(meta.note?' · '+meta.note:'');
+  }
+  function render(){
+    if(!got.needs||!got.jobs)return;
+    const openNeeds=needs.filter(n=>n.status!=='answered')
+      .sort((a,b)=>(PRI[a.priority]??1)-(PRI[b.priority]??1)||(when(a.askedAt)||0)-(when(b.askedAt)||0));
+    const waiting=needs.filter(n=>n.status==='answered'&&n.answeredVia==='board'&&n.pickedUp!==true);
+    const decided=needs.filter(n=>n.status==='answered'&&n.pickedUp===true)
+      .sort((a,b)=>(when(b.pickedUpAt||b.answeredAt)||0)-(when(a.pickedUpAt||a.answeredAt)||0)).slice(0,10);
+    if(pending&&!openNeeds.some(n=>n.id===pending.id))pending=null;
+    fill('answered',waiting.map(answeredCard),'Nothing waiting.');
+    const g={you:[],blocked:[],working:[],waiting:[],done:[],backlog:[]};
+    jobs.slice().sort((a,b)=>(a.order||99)-(b.order||99)||(when(b.updatedAt)||0)-(when(a.updatedAt)||0))
+      .forEach(j=>{const s=STAGE[j.stage]||{group:'waiting'};g[s.group].push(j)});
+    g.done=g.done.slice(0,10);
+    fill('you',[...openNeeds.map(needCard),...g.you.map(jobCard)],'Nothing needs you right now.');
+    fill('blocked',g.blocked.map(jobCard),'Nothing is blocked.');
+    fill('working',g.working.map(jobCard),'No job is running.');
+    fill('waiting',g.waiting.map(jobCard),'Nothing waiting.');
+    fill('decisions',decided.map(decisionCard),'No decisions yet.');
+    fill('done',g.done.map(jobCard),'Nothing done yet.');
+    fill('backlog',g.backlog.map(jobCard),'Backlog is empty.');
+    $('c-dec').textContent=decided.length;$('c-done').textContent=g.done.length;$('c-back').textContent=g.backlog.length;
+    const n=openNeeds.length+g.you.length;
+    nav({'s-you':n,'s-ans':waiting.length,'s-block':g.blocked.length,'s-run':g.working.length,'s-wait':g.waiting.length,'s-dec':decided.length,'s-done':g.done.length,'s-back':g.backlog.length});
+    $('stamp').textContent=(n?n+(n===1?' item needs you':' items need you'):'Nothing needs you')+' · '+g.working.length+' working · '+g.blocked.length+' blocked';
+    beat();
+  }
+  async function start(){
+    const timer=setTimeout(()=>{$('stamp').textContent='The board data cannot be reached yet.'},10000);
+    db=window.claude&&await window.claude.use('db');
+    if(!db){clearTimeout(timer);$('stamp').textContent='The board data is not available in this view.';fill('you',[],'Sign in to see the board.');return}
+    try{const user=await window.claude.use('user');canAnswer=!!(user&&user.canEdit())}catch(e){canAnswer=false}
+    const onErr=e=>{clearTimeout(timer);$('stamp').textContent='The board data could not load ('+(e&&e.code||'error')+').'};
+    db.collection('needs').onSnapshot(s=>{if(!s.metadata.fromCache)clearTimeout(timer);needs=s.docs.map(d=>Object.assign({id:d.id},d.data()));got.needs=true;render()},onErr);
+    db.collection('jobs').onSnapshot(s=>{if(!s.metadata.fromCache)clearTimeout(timer);jobs=s.docs.map(d=>Object.assign({id:d.id},d.data()));got.jobs=true;render()},onErr);
+    db.doc('meta/board').onSnapshot(d=>{const b=d.exists?d.data():{};if(b.title){$('title').textContent=b.title;document.title=b.title}if(b.subtitle)$('subtitle').textContent=b.subtitle},()=>{});
+    db.doc('meta/claude').onSnapshot(d=>{meta=d.exists?d.data():null;beat()},()=>{});
+    // Keep relative times ("12 min ago", stale marks) honest without a reload.
+    setInterval(render,60e3);
+  }
+  start();
+})();
+</script>

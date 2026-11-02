@@ -1,0 +1,21 @@
+{
+  "boardUrl": "https://claude.ai/artifact/EXAMPLEboard123",
+  "needs": [
+    {
+      "id": "db-migration-window",
+      "version": 4,
+      "status": "open",
+      "question": "When should the orders-table migration run?",
+      "context": "Migration locks orders for ~6 min (measured on a staging copy). Traffic is lowest Sun 02:00-04:00 UTC.",
+      "options": [
+        "Sunday 02:00 UTC with a 10-minute maintenance banner",
+        "Tonight 23:00 UTC, no banner",
+        "Split into two online batches next week (adds 2 days of work)"
+      ],
+      "recommendFirst": true,
+      "priority": "today",
+      "askedAt": "2026-11-02T09:10:00Z"
+    }
+  ],
+  "jobs": []
+}
