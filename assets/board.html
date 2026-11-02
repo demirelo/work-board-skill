@@ -178,6 +178,8 @@ details.fold>.list{margin-top:10px}
     const r=el('div','row');r.append(el('span','chip '+s.cls,s.label));
     const t=when(j.updatedAt);
     if(s.group!=='done'&&s.group!=='backlog'&&t&&Date.now()-t>STALE_MS)r.append(el('span','chip stale','Stale'));
+    // A time ahead of the clock was guessed, not read; flag it so it cannot hide a stale job.
+    if(t&&t-Date.now()>5*60e3)r.append(el('span','chip stale','Time in future'));
     r.append(el('span','title',j.title||j.id));c.append(r);
     if(j.waitingOn)c.append(el('p','muted','Waits for: '+j.waitingOn));
     if(j.nextAction)c.append(el('p',null,j.nextAction));

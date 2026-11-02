@@ -1,6 +1,11 @@
 ---
 name: work-board
-description: Run a personal work board, one live page where the user answers Claude's decision questions with one click and sees every running job and whom it waits for (a claude.ai artifact with a small database). Use it whenever you need a decision from the user during multi-step work, a scheduled "board pickup" runs, a job (PR, review, CI run, deploy step, fix round, long task) starts, changes stage or finishes, the user mentions "the board", "a card", "put it on the board", "what needs me", answers with a bare option number such as "1", or asks you to set up a board for their work. Use it before you ask the user a work decision in chat, because every decision should also be a card.
+description: |
+  Personal work board: the user's live claude.ai page that holds open decision cards and every running job. Use this skill even when the user never says "board". It covers three intents:
+  - The user owes a decision. You need their call on a choice (drop a version, pick a time, approve a plan), or they say "ask async", "don't block on me", "keep going" or "park it". Post a decision card first, then continue other work.
+  - The user asks about their own queue: what waits on them, what is blocked on their answer, what needs them, what is in flight. This also covers a reply that is only an option number, such as "2".
+  - A job changes state. A PR opens, merges or fails. CI, a review or a deploy starts or ends. A long task stalls. This also covers the user reporting such news, saying the board is stale, or a "board pickup" run.
+  Do not use it to build kanban apps or dashboards, or for advice on Jira, Trello or GitHub project boards.
 ---
 
 # Work board
@@ -40,6 +45,12 @@ If there is none and the user wants one:
 Every later publish of the page passes `url=<board URL>` and omits
 `capabilities` (that keeps the stored ones). A publish without `url` creates
 a second board.
+
+## Times
+
+Take every timestamp from the clock (`date -u +%FT%TZ`), never from memory
+or an estimate. A time in the future shows as "just now" and hides a stale
+job; a guessed past time marks a fresh job stale.
 
 ## The four moves
 
@@ -114,6 +125,25 @@ Use one `batch` write when you touch more than two records.
 Edit the project's copy of the page, keep it working on a phone and in
 light and dark mode, make it render correctly when a field is missing (old
 records lack new fields), and publish with `url=`.
+
+## Jira, Linear, GitHub Projects and other trackers
+
+The board does not replace a team tracker. The tracker holds the team's
+tasks; the board holds the conversation between one person and Claude:
+the decisions Claude needs from them, and what Claude's own running work
+waits for.
+
+- Keep the tracker the source of truth for tasks. Do not copy a team's
+  backlog onto the board.
+- A board job that belongs to a ticket puts the ticket URL in `link` and the
+  key in the title ("PROJ-142: rate limiter"). Update the ticket in the
+  tracker as usual (with its own tool or connector, if available); the board
+  only mirrors the stage of the part Claude is doing.
+- A decision that the team must see (scope, priority, a design choice) goes
+  to the tracker or the team channel as well. The card's `context` names
+  where, so the answer can be posted back there.
+- If the user wants no second place at all, skip the jobs half and use only
+  decision cards.
 
 ## Writing for the user
 
