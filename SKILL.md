@@ -143,6 +143,11 @@ blocked, done.
   lands in the wrong group.
 - `waitingOn`: who or what, by name ("Dana's approval on 1b2bee29",
   "CI on #177", "you: card db-migration-window").
+- Use a `needs-*` stage only when the user must act **and** an open `needs`
+  card says what to do; write `waitingOn: "you: card <id>"`. The page lists
+  only cards under "Needs you" (a job cannot take an answer), links the job
+  to its card, and flags a `needs-*` job without an open card. If someone
+  else must act (a reviewer, CI), use `waiting-others` and name them.
 - `nextAction`: the next concrete step, one line. When done, the result
   ("Merged as 05f2a62f").
 - `updatedAt`: ISO time. Open jobs older than 12 hours show as stale.
