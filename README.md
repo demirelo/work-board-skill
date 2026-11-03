@@ -17,7 +17,8 @@ answer); Claude picks the answer up and acts on it.
 
 ## What the page shows
 
-- **Needs you** — decision cards, urgent first, recommended option marked.
+- **Needs you** — only decision cards you can answer, urgent first, recommended
+  option marked. A job that waits on you links to its card instead.
 - **Answered, waiting for Claude** — your clicks Claude has not acted on yet.
 - **Blocked / Working / Waiting for others** — every job and who it waits for.
 - **Recent decisions, Recently done, Backlog** — collapsed by default.

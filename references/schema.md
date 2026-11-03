@@ -46,7 +46,7 @@ Stages and the group the page shows them in:
 
 | stage | group |
 |---|---|
-| needs-answer, needs-review, needs-merge | Needs you |
+| needs-answer, needs-review, needs-merge | Waiting for others, with an "Answer on the card" link to the open card named in `waitingOn` ("you: card <id>"); a "No card to answer" chip when no open card matches |
 | blocked, failed | Blocked |
 | working, ci | Working |
 | review | Waiting for others (shown as "In review") |
@@ -54,6 +54,10 @@ Stages and the group the page shows them in:
 | queued, waiting-others | Waiting for others |
 | backlog | Backlog (collapsed) |
 | done | Recently done (collapsed) |
+
+"Needs you" lists only open `needs` cards, because only a card can take an
+answer. A job never appears there; use a `needs-*` stage only together with an
+open card.
 
 ## `meta/claude` — heartbeat
 
