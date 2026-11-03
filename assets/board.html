@@ -157,7 +157,7 @@ details.fold>.list{margin-top:10px}
     'done':{group:'done',label:'Done',cls:''}
   };
   const PRI={now:0,today:1,later:2};
-  const STALE_MS=12*3600e3, BEAT_LATE_MS=45*60e3;
+  const STALE_MS=12*3600e3, BEAT_LATE_MS=45*60e3, CLAUDE_IDLE_MS=60*60e3;
   // Older records carry text dates such as "1 Nov 22:10"; read them as this year.
   function when(v){
     if(!v)return null;
@@ -183,6 +183,8 @@ details.fold>.list{margin-top:10px}
     if(s.group!=='done'&&s.group!=='backlog'&&t&&Date.now()-t>STALE_MS)r.append(el('span','chip stale','Stale'));
     // A time ahead of the clock was guessed, not read; flag it so it cannot hide a stale job.
     if(t&&t-Date.now()>5*60e3)r.append(el('span','chip stale','Time in future'));
+    // A job that waits on Claude must move within the hour; otherwise Claude dropped it.
+    if(s.group!=='done'&&s.group!=='backlog'&&/^\s*claude\b/i.test(j.waitingOn||'')&&t&&Date.now()-t>CLAUDE_IDLE_MS)r.append(el('span','chip stale','Claude has not acted'));
     r.append(el('span','title',j.title||j.id));c.append(r);
     if(j.waitingOn)c.append(el('p','muted','Waits for: '+j.waitingOn));
     if(s.group==='you'){

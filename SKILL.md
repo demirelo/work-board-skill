@@ -151,6 +151,9 @@ blocked, done.
 - `nextAction`: the next concrete step, one line. When done, the result
   ("Merged as 05f2a62f").
 - `updatedAt`: ISO time. Open jobs older than 12 hours show as stale.
+- A job that waits on you (`waitingOn: "Claude: ..."`) is your own next
+  step. Start it in the same turn, or name what it waits for instead. The
+  page marks it "Claude has not acted" after 60 minutes without a change.
 - `link`, `machine`: optional.
 
 Use one `batch` write when you touch more than two records.
