@@ -59,6 +59,9 @@ button.opt:hover,button.opt:focus-visible{border-color:var(--accent);outline:non
 button.opt.rec{border-color:var(--accent)}
 button.opt.rec .lbl{color:var(--accent)}
 button.opt.other{border-style:dashed;color:var(--muted)}
+/* The option waiting for Confirm: filled and outlined so the choice is obvious. */
+button.opt.sel{border-color:var(--accent);background:var(--accent);color:var(--bg);box-shadow:0 0 0 2px var(--accent)}
+button.opt.sel .lbl,button.opt.sel small{color:var(--bg)}
 .meta{font:12px/1.4 var(--mono);color:var(--muted);overflow-wrap:anywhere}
 a{color:var(--accent)}
 .empty{color:var(--muted);font-size:14px;padding:4px 0}
@@ -218,14 +221,17 @@ details.fold>.list{margin-top:10px}
     const o=el('div','opts');
     opts.forEach((x,i)=>{
       const rec=i===0&&n.recommendFirst, label=optLabel(x), detail=optDetail(x);
-      const b=el(canAnswer?'button':'div','opt'+(rec?' rec':''));
+      const sel=pending&&pending.id===n.id&&!pending.other&&pending.option===label;
+      const b=el(canAnswer?'button':'div','opt'+(rec?' rec':'')+(sel?' sel':''));
+      if(canAnswer)b.setAttribute('aria-pressed',sel?'true':'false');
       b.append(el('span','lbl',(rec?'Recommended: ':'')+label));
       if(detail)b.append(el('small',null,detail));
       if(canAnswer){b.type='button';b.onclick=()=>{pending={id:n.id,option:label,other:false,note:'',busy:false,error:''};render()}}
       o.append(b);
     });
     if(canAnswer){
-      const b=el('button','opt other','Other answer…');b.type='button';
+      const otherSel=pending&&pending.id===n.id&&pending.other;
+      const b=el('button','opt other'+(otherSel?' sel':''),'Other answer…');b.type='button';b.setAttribute('aria-pressed',otherSel?'true':'false');
       b.onclick=()=>{pending={id:n.id,option:'',other:true,note:'',busy:false,error:''};render()};
       o.append(b);
     }
