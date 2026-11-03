@@ -31,8 +31,10 @@ Copy this folder to `~/.claude/skills/work-board/` (or a project's
 Claude publishes `assets/board.html` as a private artifact and records its
 URL in your project instructions.
 
-For answers to be picked up while you are away, schedule a recurring prompt
-(for example every 15 minutes) that says "board pickup".
+Claude also sets up the recurring check that reads your answers while you
+are away (every 10–15 minutes; a scheduled task if you allow one, otherwise
+a session schedule it re-arms each session). The prompt it uses is in
+`references/pickup-prompt.md`.
 
 ## FAQ
 
@@ -64,6 +66,7 @@ answer on the card so the board stays complete.
 
 - `SKILL.md` — the workflow Claude follows.
 - `references/schema.md` — data fields and stages.
+- `references/pickup-prompt.md` — the recurring check prompt.
 - `assets/board.html` — the page template.
 - `evals/` — test cases (`claude plugin eval .` runs them).
 - `docs/` — README pictures.

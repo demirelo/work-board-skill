@@ -40,11 +40,41 @@ If there is none and the user wants one:
 3. Write `meta/board` with `{title, subtitle}` (for example
    `"Acme platform board"`, `"What needs Sam, then every job."`).
 4. Record the URL where future sessions will find it (project instructions
-   or memory), and say that the page also needs a recurring pickup (below).
+   or memory).
+5. Set up the recurring checks (next section) and tell the user they run.
 
 Every later publish of the page passes `url=<board URL>` and omits
 `capabilities` (that keeps the stored ones). A publish without `url` creates
 a second board.
+
+## Recurring checks (set them up, keep them alive)
+
+A board only works hands-free if something reads it while the user is away.
+Set up a recurring **board pickup** when you create a board, and again at
+the start of every session that uses an existing board, because session
+schedules end with the session.
+
+- **Cadence:** every 10–15 minutes while work is running. Offer a slower
+  cadence (hourly) for quiet periods; never faster than every 5 minutes.
+- **Prompt:** use `references/pickup-prompt.md` with the board URL filled
+  in. It is the move-2 pickup plus the heartbeat, and it replies only
+  `board: nothing new` when nothing waits, so quiet ticks stay short.
+- **Scheduler:** use what the host offers, in this order:
+  1. a durable scheduled task or routine (survives restarts), when the user
+     agrees to one;
+  2. a session cron (for example `CronCreate` in Claude Code), re-created in
+     every new session;
+  3. a `/loop` with the pickup prompt, as a last resort.
+  Check first whether one already exists (list the schedules) so you never
+  run two pickups against the same board.
+- **Long jobs:** a schedule only wakes you on its tick. For background jobs
+  (CI runs, builds, agent jobs), also start a waiter that ends when the job
+  ends, so a finished job is handled within minutes, not at the next tick.
+- **Stop:** when the user pauses the work or the board is retired, delete
+  the schedule and say so.
+
+Record in project instructions or memory that the pickup must be re-armed
+in each session; the heartbeat line on the page shows when it stopped.
 
 ## Times
 
