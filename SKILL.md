@@ -40,7 +40,10 @@ If there is none and the user wants one:
    answer, the page also sends a short "Send to Claude" comment ("Board
    decision on ... (card <id>): <answer>"), which wakes a session that
    watches the board with auto-replies armed. Treat that comment exactly like
-   a pickup of that one card, then update the card as usual. The scheduled
+   a pickup of that one card, then update the card as usual. Every session
+   that watches the board gets the comment: act only on cards whose id starts
+   with your own project prefix, and leave other cards (and their threads) to
+   their session. A session watches only the boards its project uses. The scheduled
    pickup stays the fallback for when no session is watching.
 3. Write `meta/board` with `{title, subtitle}` (for example
    `"Acme platform board"`, `"What needs Sam, then every job."`).
