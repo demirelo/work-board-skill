@@ -16,6 +16,7 @@ Claude (via ArtifactData) write. Every write to an existing document needs
 | priority | `now` \| `today` \| `later` | sort order; missing = `today` |
 | blocks | string | what waits on the answer (optional) |
 | link | string | evidence file or URL (optional) |
+| session | string | the creating session's name; the wake-up message is addressed to it, other sessions ignore the card |
 | status | `open` \| `answered` | |
 | askedAt | ISO string | older cards may have "2 Nov" text |
 | answer | string | the chosen option label, or free text from "Other" |

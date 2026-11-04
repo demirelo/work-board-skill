@@ -43,7 +43,13 @@ If there is none and the user wants one:
    a pickup of that one card, then update the card as usual. Every session
    that watches the board gets the comment: act only on cards whose id starts
    with your own project prefix, and leave other cards (and their threads) to
-   their session. A session watches only the boards its project uses. The scheduled
+   their session. A session watches only the boards its project uses.
+   The platform delivers the comment to every watching session; the page
+   cannot pick one. So every card you create carries `session` (your session
+   name, as other sessions address you), and the page starts the message
+   with "For session <name>:". Act only on a message addressed to you, or on
+   a card with no `session` whose prefix is yours. Otherwise do nothing: no
+   reply in the thread, no card update. The scheduled
    pickup stays the fallback for when no session is watching.
 3. Write `meta/board` with `{title, subtitle}` (for example
    `"Acme platform board"`, `"What needs Sam, then every job."`).

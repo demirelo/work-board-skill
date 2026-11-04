@@ -209,7 +209,8 @@ details.fold>.list{margin-top:10px}
     try{
       if(!comments||await comments.canSendToClaude()!=='available')return;
       const anchor=await anchorP;if(!anchor)return;
-      let text='Board decision on "'+(n.question||n.id).slice(0,300)+'" (card '+n.id+'): '+data.answer;
+      // Every watching session receives this; the session tag tells the right one to act and the rest to stay silent.
+      let text=(n.session?'For session '+String(n.session).slice(0,120)+': ':'')+'Board decision on "'+(n.question||n.id).slice(0,300)+'" (card '+n.id+'): '+data.answer;
       if(data.note)text+='\nNote: '+data.note;
       await comments.sendToClaude({anchor,text:text.slice(0,2000)});
     }catch(e){}
@@ -237,6 +238,7 @@ details.fold>.list{margin-top:10px}
     else r.append(el('span','chip you','Decision'));
     r.append(el('span','title',n.question||n.id));c.append(r);
     if(n.blocks)c.append(el('p','blocks','Blocks: '+n.blocks));
+    if(n.session)c.append(el('p','meta','Session: '+n.session));
     if(n.context){const d=el('details','why');d.append(el('summary',null,'Why'),el('p','muted',n.context));c.append(d)}
     const opts=Array.isArray(n.options)?n.options:[];
     const o=el('div','opts');
