@@ -202,7 +202,18 @@ details.fold>.list{margin-top:10px}
     return c;
   }
 
-  let db=null, canAnswer=false, openIds=new Set();
+  let db=null, comments=null, canAnswer=false, openIds=new Set();
+  // Wake the watching Claude session as soon as an answer is saved. The scheduled
+  // pickup stays the fallback, so every failure here is silent.
+  async function notifyClaude(n,data,anchorP){
+    try{
+      if(!comments||await comments.canSendToClaude()!=='available')return;
+      const anchor=await anchorP;if(!anchor)return;
+      let text='Board decision on "'+(n.question||n.id).slice(0,300)+'" (card '+n.id+'): '+data.answer;
+      if(data.note)text+='\nNote: '+data.note;
+      await comments.sendToClaude({anchor,text:text.slice(0,2000)});
+    }catch(e){}
+  }
   // One pending confirmation at a time; it survives re-render so a snapshot does not wipe it.
   let pending=null; // {id, option, other, note, busy, error}
   function answer(n){
@@ -212,8 +223,11 @@ details.fold>.list{margin-top:10px}
     pending.busy=true;pending.error='';render();
     const data={status:'answered',answer:choice.slice(0,2000),answeredAt:new Date().toISOString(),answeredVia:'board',pickedUp:false};
     if(!pending.other&&pending.note&&pending.note.trim())data.note=pending.note.trim().slice(0,2000);
+    // Anchor the wake-up comment to the card while it is still on screen.
+    const cardEl=document.getElementById('card-'+n.id);
+    const anchorP=(comments&&cardEl)?comments.anchorFor(cardEl).catch(()=>null):Promise.resolve(null);
     db.collection('needs').doc(n.id).update(data)
-      .then(()=>{pending=null;render()})
+      .then(()=>{pending=null;render();notifyClaude(n,data,anchorP)})
       .catch(e=>{if(pending){pending.busy=false;pending.error=(e&&e.code==='invalid_argument')?'This view cannot save answers.':'Could not save ('+(e&&e.code||'error')+'). Try again.'}render()});
   }
   function needCard(n){
@@ -338,6 +352,7 @@ details.fold>.list{margin-top:10px}
     db=window.claude&&await window.claude.use('db');
     if(!db){clearTimeout(timer);$('stamp').textContent='The board data is not available in this view.';fill('you',[],'Sign in to see the board.');return}
     try{const user=await window.claude.use('user');canAnswer=!!(user&&user.canEdit())}catch(e){canAnswer=false}
+    try{comments=await window.claude.use('comments')}catch(e){comments=null}
     const onErr=e=>{clearTimeout(timer);$('stamp').textContent='The board data could not load ('+(e&&e.code||'error')+').'};
     db.collection('needs').onSnapshot(s=>{if(!s.metadata.fromCache)clearTimeout(timer);needs=s.docs.map(d=>Object.assign({id:d.id},d.data()));got.needs=true;render()},onErr);
     db.collection('jobs').onSnapshot(s=>{if(!s.metadata.fromCache)clearTimeout(timer);jobs=s.docs.map(d=>Object.assign({id:d.id},d.data()));got.jobs=true;render()},onErr);

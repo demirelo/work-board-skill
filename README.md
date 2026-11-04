@@ -54,10 +54,12 @@ It is a private claude.ai artifact: only you, until you share it from the
 page's Share menu. Everyone you share it with can read it; only you (the
 owner or editors) and Claude can change it. Never put secrets on it.
 
-**How does Claude see my answers when I am away?**
-A scheduled prompt ("board pickup", for example every 15 minutes) makes
-Claude read new answers, act on them and write a heartbeat. The page shows
-when Claude last checked.
+**How does Claude see my answers?**
+At once, when a Claude session watches the board: confirming an answer also
+sends a short "Send to Claude" comment that wakes that session (the page's
+`comments` capability). As a fallback, a scheduled prompt ("board pickup",
+for example every 15 minutes) makes Claude read new answers, act on them and
+write a heartbeat. The page shows when Claude last checked.
 
 **Can I answer in chat instead?**
 Yes. Reply with the option number or your own words; Claude records the

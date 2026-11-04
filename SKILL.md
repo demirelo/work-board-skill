@@ -33,10 +33,15 @@ If there is none and the user wants one:
    `docs/work-board.html` or a private notes folder) so later edits have a
    source file.
 2. Publish it with the Artifact tool and these capabilities:
-   `{"db": {"rules": [{"path": "", "read": "view", "write": "admin"}]}, "user": {}}`.
+   `{"db": {"rules": [{"path": "", "read": "view", "write": "admin"}]}, "user": {}, "comments": {}}`.
    This lets anyone with access read the board, and only the owner (editor)
    and you write. Load the `artifact-capabilities` skill first if it is
-   available.
+   available. `comments` is the instant trigger: when the user confirms an
+   answer, the page also sends a short "Send to Claude" comment ("Board
+   decision on ... (card <id>): <answer>"), which wakes a session that
+   watches the board with auto-replies armed. Treat that comment exactly like
+   a pickup of that one card, then update the card as usual. The scheduled
+   pickup stays the fallback for when no session is watching.
 3. Write `meta/board` with `{title, subtitle}` (for example
    `"Acme platform board"`, `"What needs Sam, then every job."`).
 4. Record the URL where future sessions will find it (project instructions
@@ -44,7 +49,9 @@ If there is none and the user wants one:
 5. Set up the recurring checks (next section) and tell the user they run.
 
 Every later publish of the page passes `url=<board URL>` and omits
-`capabilities` (that keeps the stored ones). A publish without `url` creates
+`capabilities` (that keeps the stored ones). A board published before the
+trigger existed needs one publish with the full capability set above to add
+`comments`. A publish without `url` creates
 a second board.
 
 ## Recurring checks (set them up, keep them alive)
